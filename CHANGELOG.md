@@ -11,3 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.1] - 2025-02-23
 ### Added
 - Jenkins añadido.
+
+
+## [1.0.2] - 2025-02-23
+### Added
+- Testing multibranch 5
