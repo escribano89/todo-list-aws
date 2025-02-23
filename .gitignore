@@ -6,3 +6,4 @@ pyenvunittests
 .coverage
 coverage.xml
 flake8.out
+samconfig.toml
