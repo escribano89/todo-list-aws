@@ -1,6 +1,3 @@
--e ### Release 0abd78b - 2025-02-23 11:56:16
-- Promoted develop to master
-
 # Changelog
 All notable changes to this project will be documented in this file.
 

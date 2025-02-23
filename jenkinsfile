@@ -69,12 +69,12 @@ pipeline {
                         git checkout develop
                         git pull origin develop
 
+
                         TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S")
                         VERSION=$(git rev-parse --short HEAD)
-                        CHANGELOG_ENTRY="### Release $VERSION - $TIMESTAMP\n- Promoted develop to master\n"
+                        CHANGELOG_ENTRY="### Release $VERSION - $TIMESTAMP\n\n- Promoted develop to master\n"
 
-                        echo "Updating CHANGELOG.md in develop..."
-                        echo -e "$CHANGELOG_ENTRY\n$(cat CHANGELOG.md)" > CHANGELOG.md
+                        echo -e "$CHANGELOG_ENTRY\n$(cat CHANGELOG.md)" > tmpfile && mv tmpfile CHANGELOG.md
 
                         git add CHANGELOG.md
                         git commit -m "Update CHANGELOG.md in develop - Promote to master [$VERSION]"
