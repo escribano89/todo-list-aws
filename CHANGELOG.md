@@ -1,3 +1,7 @@
+-e ### Release 4bab968 - 2025-02-23 11:59:51
+
+- Promoted develop to master
+
 # Changelog
 All notable changes to this project will be documented in this file.
 
