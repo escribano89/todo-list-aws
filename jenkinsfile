@@ -11,6 +11,12 @@ pipeline {
                 git branch: 'develop', url: 'https://github.com/escribano89/todo-list-aws'
                 echo "Current workspace: ${env.WORKSPACE}"
                 sh 'ls -l "$WORKSPACE"'
+
+                sh '''
+                    wget --header="Authorization: token $GITHUB_TOKEN" \
+                        -O samconfig.toml \
+                        https://raw.githubusercontent.com/escribano89/todo-list-aws-config/staging/samconfig.toml
+                '''
             }
         }
         stage('Static Test') {
