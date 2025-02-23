@@ -1,7 +1,3 @@
--e ### Release 4bab968 - 2025-02-23 11:59:51
-
-- Promoted develop to master
-
 # Changelog
 All notable changes to this project will be documented in this file.
 
@@ -11,3 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2021-01-08
 ### Added
 - Versión inicial de código.
+
+## [1.0.1] - 2025-02-23
+### Added
+- Jenkins añadido.

@@ -65,20 +65,6 @@ pipeline {
                 script {
                     sh '''
                         set -e
-                        
-                        git checkout develop
-                        git pull origin develop
-
-
-                        TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S")
-                        VERSION=$(git rev-parse --short HEAD)
-                        CHANGELOG_ENTRY="### Release $VERSION - $TIMESTAMP\n\n- Promoted develop to master\n"
-
-                        echo -e "$CHANGELOG_ENTRY\n$(cat CHANGELOG.md)" > tmpfile && mv tmpfile CHANGELOG.md
-
-                        git add CHANGELOG.md
-                        git commit -m "Update CHANGELOG.md in develop - Promote to master [$VERSION]"
-                        git push https://$GITHUB_TOKEN@github.com/escribano89/todo-list-aws develop
 
                         git checkout master
                         git pull origin master
