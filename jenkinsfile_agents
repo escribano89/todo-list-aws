@@ -15,7 +15,7 @@ pipeline {
                 sh '''
                     wget --header="Authorization: token $GITHUB_TOKEN" \
                         -O samconfig.toml \
-                        https://raw.githubusercontent.com/escribano89/todo-list-aws-config/staging/samconfig.toml
+                        https://raw.githubusercontent.com/escribano89/todo-list-aws-config/production/samconfig.toml
                 '''
             }
         }
