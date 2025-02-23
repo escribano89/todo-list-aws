@@ -7,7 +7,14 @@ pipeline {
                 git branch: 'master', url: 'https://github.com/escribano89/todo-list-aws'
                 echo "Current workspace: ${env.WORKSPACE}"
                 sh 'ls -l "$WORKSPACE"'
+
+                sh '''
+                    wget --header="Authorization: token $GITHUB_TOKEN" \
+                        -O samconfig.toml \
+                        https://raw.githubusercontent.com/escribano89/todo-list-aws-config/production/samconfig.toml
+                '''
             }
+            
         }
 
         stage('Deploy') {
@@ -26,6 +33,9 @@ pipeline {
                 agent { label 'agent-rest-ci' }
                 script {
                     sh '''
+                        bash -c "whoami"
+                        bash -c "hostname"
+
                         set -e
 
                         export BASE_URL=$(aws cloudformation describe-stacks --stack-name todo-list-aws-staging \
