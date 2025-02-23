@@ -1,0 +1,42 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Get Code') {
+            steps {
+                git branch: 'master', url: 'https://github.com/escribano89/todo-list-aws'
+                echo "Current workspace: ${env.WORKSPACE}"
+                sh 'ls -l "$WORKSPACE"'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                script {
+                    sh '''
+                        sam build --config-env production
+                        sam deploy --config-env production --resolve-s3 --no-confirm-changeset --no-fail-on-empty-changeset
+                    '''
+                }
+            }
+        }
+
+        stage('Rest Test') {
+            steps {
+                agent { label 'agent-rest-ci' }
+                script {
+                    sh '''
+                        set -e
+
+                        export BASE_URL=$(aws cloudformation describe-stacks --stack-name todo-list-aws-staging \
+                                --query "Stacks[0].Outputs[?OutputKey=='BaseUrlApi'] | [0].OutputValue" --output text)
+
+                        echo "Running Rest tests against: $BASE_URL"
+
+                        python -m pytest test/integration/todoApiTest.py -k "test_api_gettodo or test_api_listtodos" --disable-warnings
+                    '''
+                }
+            }
+        }
+    }
+}
