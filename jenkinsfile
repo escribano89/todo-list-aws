@@ -1,0 +1,85 @@
+pipeline {
+    agent any
+
+    environment {
+        GITHUB_TOKEN = credentials('github-token')
+    }
+
+    stages {
+        stage('Get Code') {
+            steps {
+                git branch: 'develop', url: 'https://github.com/escribano89/todo-list-aws'
+                echo "Current workspace: ${env.WORKSPACE}"
+                sh 'ls -l "$WORKSPACE"'
+          
+                sh '''
+                    wget --header="Authorization: token $GITHUB_TOKEN" \
+                        -O samconfig.toml \
+                        https://raw.githubusercontent.com/escribano89/todo-list-aws-config/staging/samconfig.toml
+                '''
+            }
+        }
+        stage('Static Test') {
+            steps {
+                script {
+                    sh '''
+                        python -m flake8 --exit-zero --format=pylint src > flake8.out
+                        python -m bandit --exit-zero -r src -f custom -o bandit.out --msg-template "{abspath}:{line}: [{test_id}]: {msg}"
+                    '''
+                }
+
+                recordIssues tools: [flake8(name: 'Flake8', pattern: 'flake8.out')], 
+                             qualityGates: [[threshold: 8, type: 'TOTAL', unstable: true], 
+                                            [threshold: 10, type: 'TOTAL', unstable: false]] 
+
+                recordIssues tools: [pyLint(name: 'Bandit', pattern: 'bandit.out')], 
+                             qualityGates: [[threshold: 2, type: 'TOTAL', unstable: true], 
+                                            [threshold: 4, type: 'TOTAL', unstable: false]]
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                script {
+                    sh '''
+                        sam build --config-env staging
+                        sam deploy --config-env staging --resolve-s3 --no-confirm-changeset --no-fail-on-empty-changeset
+                    '''
+                }
+            }
+        }
+
+        stage('Rest Test') {
+            steps {
+                script {
+                    sh '''
+                        set -e
+
+                        export BASE_URL=$(aws cloudformation describe-stacks --stack-name todo-list-aws-staging \
+                                --query "Stacks[0].Outputs[?OutputKey=='BaseUrlApi'] | [0].OutputValue" --output text)
+
+                        echo "Running Rest tests against: $BASE_URL"
+
+                        python -m pytest test/integration/todoApiTest.py --disable-warnings
+                    '''
+                }
+            }
+        }
+        
+        stage('Promote') {
+            steps {
+                script {
+                    sh '''
+                        set -e
+
+                        git checkout master
+                        git pull origin master
+                        git merge origin/develop --no-edit
+
+                        git push https://$GITHUB_TOKEN@github.com/escribano89/todo-list-aws master
+                    '''
+                }
+            }
+        }
+    }
+}
